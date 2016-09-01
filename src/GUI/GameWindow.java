@@ -35,8 +35,14 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
     private JLabel _ScoreTitleLabel;
     private int _Score;
     
-    public GameWindow(cliente pCliente, boolean flag){
-        _flagForTypeOfConnection=flag;
+    /**
+     * constructor que establece los datos iniciales y recibe el primer
+     * mensaje que proviene del servidor.
+     * @param pCliente dato de la clase cliente para realizar la conexion 
+     * contra el servidor.
+     */
+    public GameWindow(cliente pCliente){
+        //_flagForTypeOfConnection=flag
         _balls= new ArrayList<>();
         _bricks= new ArrayList<>();
         _plyrs= new ArrayList<>();
@@ -46,22 +52,24 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
             }
         }
         _balls.add(new Ball(SCREEN_X/DOS-BALL_SIZE,POS_Y_PLY-(BALL_SIZE+CINCO)));
-        //_clienteEspectador= pCliente;
-        //_clienteEspectador.SendMsg(ESPECTADOR);
+        _clienteEspectador= pCliente;
+        _clienteEspectador.SendMsg(ESPECTADOR);
         //(new Thread(_clienteEspectador)).start();
-        //setFirstData(_clienteEspectador.getMsgFromServer());
+        setFirstData(_clienteEspectador.getMsgFromServer());
         //createScreen();
     }
     
+    /**
+     * metodo para crear la pantalla y establece todos los datos en pantalla
+     * una vez recibidos y establecido el primer mensaje.
+     */
     public void createScreen(){
         setLayout(null);
-        if(_flagForTypeOfConnection)
-            addKeyListener(this);
         setTitle("Crazy Break Out");
         setBackground(Color.GRAY);
         setSize(SCREEN_X,SCREEN_Y);
         setMinimumSize(new Dimension(SCREEN_X,SCREEN_Y));
-        setVisible(true);
+        //setVisible(true);
         setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         _ScoreTitleLabel= new JLabel();
@@ -84,6 +92,21 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
         pack();
     }
     
+    /**
+     * metodo que establece la bandera para el tipo de conexion que
+     * vamos a establecer contra el servidor.
+     * @param pFalg la bandera que indicara el tipo de conexion.
+     */
+    public void setFalgForPlayer(boolean pFalg){   
+        _flagForTypeOfConnection=pFalg;
+        if(_flagForTypeOfConnection)
+            addKeyListener(this);
+    }
+    
+    /**
+     * hilo donde ejecutaremos el recibidor de mensajes por parte del 
+     * servidor.
+     */
     @Override
     public void run() {
         String msgFromServer;
@@ -101,6 +124,11 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
         }
     }
     
+    /**
+     * metodo para establecer el primer Json de parte del servidor
+     * para tener igualdad contra el servidor.
+     * @param pMsg 
+     */
     public void setFirstData( String pMsg){
         try {
             JSONObject obj = new JSONObject(pMsg);
@@ -152,6 +180,11 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
         }
     }
     
+    /**
+     * metodo para establecer los nuevos datos provenientes del 
+     * servidor. 
+     * @param pMsg 
+     */
     public void setNewJsonMsg(String pMsg){
         try {
             JSONObject obj = new JSONObject(pMsg);
@@ -197,15 +230,24 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
         }
     }
     
+    /**
+     * metodo que vamos a utilizar para la deteccion de las 
+     * teclas cuando utilicemos el programa como un player.
+     * @param e 
+     */
     @Override
     public void keyPressed(KeyEvent e) {
         if(e.getKeyCode()== KeyEvent.VK_RIGHT && _flagForTypeOfConnection){
-            _clienteJugador.SendMsg(RIGHT);
-            //System.out.println(_Right);
+            synchronized(this){
+                _clienteJugador.SendMsg(RIGHT);
+            }
+            System.out.println(RIGHT);
         }
         else if(e.getKeyCode()== KeyEvent.VK_LEFT && _flagForTypeOfConnection){
-            _clienteJugador.SendMsg(LEFT);
-            //System.out.println(_Left);
+            synchronized(this){
+                _clienteJugador.SendMsg(LEFT);
+            }
+            System.out.println(LEFT);
         }
     }
 
@@ -217,8 +259,8 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
     public void keyReleased(KeyEvent e) {
     }
     
-    public static void main(String[] args) {
-        GameWindow nueva= new GameWindow(null, true);
+    /*public static void main(String[] args) {
+        GameWindow nueva= new GameWindow(null);
         String JsonTemplateExampleFirstMsg= "{\"players\":-1,\"bricks\":{\"b0\":"
                 + "\"0,1\",\"b1\":\"1,3\",\"b2\":\"2,2\",\"b3\":\"3,1\",\"b4\":"
                 + "\"4,1\",\"b5\":\"5,2\",\"b6\":\"6,1\",\"b7\":\"7,2\",\"b8\":"
@@ -241,6 +283,5 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
                 + "\"ballPos\":{\"pos0\":\"380,455\"},\"score\":0}";
         nueva.setFirstData(JsonTemplateExampleFirstMsg);
         nueva.createScreen();
-
-    }
+    }*/
 }
