@@ -109,18 +109,13 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
      */
     @Override
     public void run() {
-        String msgFromServer;
         if(_flagForTypeOfConnection){
             _clienteJugador= new cliente(_clienteEspectador.getPort(), 
                     _clienteEspectador.getIP());
             _clienteJugador.SendMsg(GAMER);
         }
         while(true){
-            if(_clienteEspectador.getFlagMsgFromServer()){
-                msgFromServer=_clienteEspectador.getMsgFromServer();
-                _clienteEspectador.setOffFlagMsgFromServer();
-                setNewJsonMsg(msgFromServer);
-            }
+            setNewJsonMsg(_clienteEspectador.getMsgFromServer());
         }
     }
     
