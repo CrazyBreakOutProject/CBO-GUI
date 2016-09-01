@@ -21,7 +21,6 @@ public class cliente implements Runnable{
     private BufferedReader _inFromServer;
     private DataOutputStream _outToServer;
     private String _msgFromServer;
-    private boolean _flagMsgFromServer;
     
     public cliente(int pPort, String pIp){
         _ip=pIp;
@@ -38,6 +37,7 @@ public class cliente implements Runnable{
                 e.printStackTrace();
                 System.out.println("error IO");
         }
+        this.run();
     }
     
     public void SendMsg( String pMensaje){
@@ -52,12 +52,13 @@ public class cliente implements Runnable{
 
     @Override
     public void run() {
-        _flagMsgFromServer=false;
+        String temp;
         try {
             _inFromServer= new BufferedReader (new InputStreamReader(_socket.getInputStream()));
             while(true){
+                temp=_inFromServer.readLine();
                 synchronized(this){
-                    _msgFromServer=_inFromServer.readLine();
+                    _msgFromServer=temp;
                 }
             }
         } catch (IOException ex) {
@@ -71,20 +72,6 @@ public class cliente implements Runnable{
             temp=_msgFromServer;
         }
         return temp;
-    }
-    
-    public boolean getFlagMsgFromServer(){
-        boolean temp;
-        synchronized(this){
-            temp=_flagMsgFromServer;
-        }
-        return temp;
-    }
-    
-    public void setOffFlagMsgFromServer(){
-        synchronized(this){
-            _flagMsgFromServer=false;
-        }
     }
     
     public int getPort(){
