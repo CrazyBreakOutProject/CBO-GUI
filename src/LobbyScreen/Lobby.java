@@ -17,6 +17,7 @@ public class Lobby extends javax.swing.JFrame {
     
     private cliente _cliente;
     private GameWindow _GameWPlayer;
+    
     /**
      * Creates new form Lobby
      */
@@ -40,8 +41,8 @@ public class Lobby extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         ConnBtt = new javax.swing.JButton();
-        ExptectorBtt = new javax.swing.JButton();
-        PlayrBtt = new javax.swing.JButton();
+        PlayerBtt = new javax.swing.JButton();
+        ExptectorBtt1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Crazy Break Out");
@@ -67,13 +68,13 @@ public class Lobby extends javax.swing.JFrame {
         jLabel2.setForeground(new java.awt.Color(254, 254, 254));
         jLabel2.setText("Puerto:");
         getContentPane().add(jLabel2);
-        jLabel2.setBounds(20, 120, 60, 17);
+        jLabel2.setBounds(20, 120, 60, 15);
 
         jLabel3.setBackground(new java.awt.Color(1, 1, 1));
         jLabel3.setForeground(new java.awt.Color(254, 254, 254));
         jLabel3.setText("IP:");
         getContentPane().add(jLabel3);
-        jLabel3.setBounds(20, 170, 16, 17);
+        jLabel3.setBounds(20, 170, 18, 15);
 
         ConnBtt.setText("Conectar");
         ConnBtt.addActionListener(new java.awt.event.ActionListener() {
@@ -82,50 +83,63 @@ public class Lobby extends javax.swing.JFrame {
             }
         });
         getContentPane().add(ConnBtt);
-        ConnBtt.setBounds(300, 150, 120, 29);
+        ConnBtt.setBounds(300, 150, 120, 25);
 
-        ExptectorBtt.setText("Espectador");
-        ExptectorBtt.addActionListener(new java.awt.event.ActionListener() {
+        PlayerBtt.setText("Jugador");
+        PlayerBtt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ExptectorBttActionPerformed(evt);
+                PlayerBttActionPerformed(evt);
             }
         });
-        getContentPane().add(ExptectorBtt);
-        ExptectorBtt.setBounds(70, 269, 130, 30);
+        getContentPane().add(PlayerBtt);
+        PlayerBtt.setBounds(270, 270, 130, 30);
 
-        PlayrBtt.setBackground(new java.awt.Color(1, 1, 1));
-        PlayrBtt.setText("Jugador");
-        PlayrBtt.addActionListener(new java.awt.event.ActionListener() {
+        ExptectorBtt1.setText("Espectador");
+        ExptectorBtt1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                PlayrBttActionPerformed(evt);
+                ExptectorBtt1ActionPerformed(evt);
             }
         });
-        getContentPane().add(PlayrBtt);
-        PlayrBtt.setBounds(270, 270, 130, 29);
+        getContentPane().add(ExptectorBtt1);
+        ExptectorBtt1.setBounds(70, 269, 130, 30);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void ExptectorBttActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExptectorBttActionPerformed
+    /**
+     * metodo para enviarle una alerta a la pantalla principal de que somos
+     * un jugador y vamos a empezar a mandarle mensajes
+     * @param evt 
+     */
+    private void PlayerBttActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PlayerBttActionPerformed
         // TODO add your handling code here:
-        _GameWPlayer= new GameWindow(_cliente, false);
+        _GameWPlayer.setFalgForPlayer(true);
+        _GameWPlayer.setVisible(true);
+        (new Thread(_GameWPlayer)).run();
         this.setVisible(false);
         this.dispose();
-    }//GEN-LAST:event_ExptectorBttActionPerformed
-
-    private void PlayrBttActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PlayrBttActionPerformed
-        // TODO add your handling code here:
-        _GameWPlayer= new GameWindow(_cliente, true);
-        this.setVisible(false);
-        this.dispose();
-        (new Thread(_GameWPlayer)).start();
-        
-    }//GEN-LAST:event_PlayrBttActionPerformed
+    }//GEN-LAST:event_PlayerBttActionPerformed
 
     private void ConnBttActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ConnBttActionPerformed
         // TODO add your handling code here:
         _cliente=new cliente(Integer.parseInt(PortField.getText()), IpField.getText());
+        _GameWPlayer= new GameWindow(_cliente);
+        _GameWPlayer.createScreen();
     }//GEN-LAST:event_ConnBttActionPerformed
+    
+    /**
+     * metodo para enviarle una alerta a la pantalla principal de que somos
+     * un expectador y vamos a visualizar el juego nada mas 
+     * @param evt 
+     */
+    private void ExptectorBtt1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExptectorBtt1ActionPerformed
+        // TODO add your handling code here:
+        _GameWPlayer.setFalgForPlayer(false);
+        _GameWPlayer.setVisible(true);
+        (new Thread(_GameWPlayer)).run();
+        this.setVisible(false);
+        this.dispose();
+    }//GEN-LAST:event_ExptectorBtt1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -164,9 +178,9 @@ public class Lobby extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton ConnBtt;
-    private javax.swing.JButton ExptectorBtt;
+    private javax.swing.JButton ExptectorBtt1;
     private javax.swing.JTextField IpField;
-    private javax.swing.JButton PlayrBtt;
+    private javax.swing.JButton PlayerBtt;
     private javax.swing.JTextField PortField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
