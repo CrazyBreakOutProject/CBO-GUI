@@ -21,6 +21,7 @@ public class Prueba_cliente_sender extends JFrame implements KeyListener{
     
     public Prueba_cliente_sender(int pPort, String pIp){
         super(pIp);
+        _cliente= new cliente(pPort, pIp);
         JPanel p = new JPanel();
         add(p);
         addKeyListener(this);
@@ -51,9 +52,4 @@ public class Prueba_cliente_sender extends JFrame implements KeyListener{
         
     }
     
-    /*
-    public static void main(String[] args) {
-        //new Prueba_cliente_sender(1,"0");
-        
-    }*/
 }
