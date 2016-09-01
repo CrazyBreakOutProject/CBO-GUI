@@ -9,6 +9,7 @@ import java.io.*;
 import java.net.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 /**
  *
  * @author ellioth
@@ -16,6 +17,7 @@ import java.util.logging.Logger;
 public class cliente implements Runnable{
     private int _port;
     private String _ip;
+    private Socket _socket;
     private BufferedReader _inFromServer;
     private DataOutputStream _outToServer;
     private String _msgFromServer;
@@ -24,25 +26,25 @@ public class cliente implements Runnable{
     public cliente(int pPort, String pIp){
         _ip=pIp;
         _port=pPort;
-        Socket clientSocket;
         try {
-            clientSocket = new Socket(_ip, _port);
-            _outToServer = new DataOutputStream(clientSocket.getOutputStream());
-            _inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            //sentence = inFromUser.readLine();
-            //outToServer.writeBytes(sentence + '\n');
-            //modifiedSentence = inFromServer.readLine();
-            //System.out.println("FROM SERVER: " + modifiedSentence);
-            //clientSocket.close();
-        } catch (IOException ex) {
-            Logger.getLogger(cliente.class.getName()).log(Level.SEVERE, null, ex);
+            InetAddress ip= InetAddress.getByName(_ip);
+            _socket= new Socket(ip, _port);
+        } catch (UnknownHostException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                System.out.println("error host desconocido");
+        } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                System.out.println("error IO");
         }
     }
     
     public void SendMsg( String pMensaje){
         try {
-            _outToServer.writeUTF(pMensaje);
-            //System.out.println(pMensaje);
+            _outToServer= new DataOutputStream(_socket.getOutputStream());
+            _outToServer.write(pMensaje.getBytes());
+            _outToServer.flush();
         } catch (IOException ex) {
             Logger.getLogger(cliente.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -51,17 +53,15 @@ public class cliente implements Runnable{
     @Override
     public void run() {
         _flagMsgFromServer=false;
-        while(true){
-            try {
-                if(!_flagMsgFromServer){
-                    synchronized(this){
+        try {
+            _inFromServer= new BufferedReader (new InputStreamReader(_socket.getInputStream()));
+            while(true){
+                synchronized(this){
                     _msgFromServer=_inFromServer.readLine();
-                    _flagMsgFromServer=true;
-                    }
                 }
-            } catch (IOException ex) {
-                Logger.getLogger(cliente.class.getName()).log(Level.SEVERE, null, ex);
             }
+        } catch (IOException ex) {
+            Logger.getLogger(cliente.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
