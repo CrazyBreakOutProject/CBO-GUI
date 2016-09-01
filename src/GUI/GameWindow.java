@@ -53,8 +53,8 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
         }
         _balls.add(new Ball(SCREEN_X/DOS-BALL_SIZE,POS_Y_PLY-(BALL_SIZE+CINCO)));
         _clienteEspectador= pCliente;
-        _clienteEspectador.SendMsg(ESPECTADOR);
-        //(new Thread(_clienteEspectador)).start();
+        //_clienteEspectador.SendMsg(ESPECTADOR);
+        (new Thread(_clienteEspectador)).start();
         setFirstData(_clienteEspectador.getMsgFromServer());
         //createScreen();
     }

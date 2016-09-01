@@ -45,10 +45,10 @@ public interface Constantes {
     
     public static final String LEFT="{\"id\": 0,\"move\":0}";
     public static final String RIGHT="{\"id\": 0,\"move\":2}";
-    public static final String GAMER="{\"typeOfConnection\":0}";
-    public static final String ESPECTADOR="{\"typeOfConnection\":1}";
-    public static final String PLAYER_IMAGE="/home/ellioth/NetBeansProjets2/prueba_cliente_sender/paleta.png";
-    public static final String BALL_IMAGE="/home/ellioth/NetBeansProjets2/prueba_cliente_sender/Master_Ball.png";
+    public static final String GAMER="{\"typeOfConnection\":1}";
+    public static final String ESPECTADOR="{\"typeOfConnection\":0}";
+    public static final String PLAYER_IMAGE="paleta.png";
+    public static final String BALL_IMAGE="Master_Ball.png";
     public static final String TYPE_CONNECTION= "typeOfConnection";
     public static final String ID= "id";
     public static final String MOVE= "move";

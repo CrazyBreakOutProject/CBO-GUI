@@ -5,6 +5,7 @@
  */
 package prueba_cliente_sender;
 
+import GUI.Constantes;
 import java.io.*;
 import java.net.*;
 import java.util.logging.Level;
@@ -14,7 +15,7 @@ import java.util.logging.Logger;
  *
  * @author ellioth
  */
-public class cliente implements Runnable{
+public class cliente implements Runnable, Constantes{
     private int _port;
     private String _ip;
     private Socket _socket;

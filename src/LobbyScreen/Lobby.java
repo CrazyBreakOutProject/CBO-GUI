@@ -5,6 +5,7 @@
  */
 package LobbyScreen;
 
+import GUI.Constantes;
 import GUI.GameWindow;
 import java.awt.Color;
 import prueba_cliente_sender.cliente;
@@ -13,7 +14,7 @@ import prueba_cliente_sender.cliente;
  *
  * @author ellioth
  */
-public class Lobby extends javax.swing.JFrame {
+public class Lobby extends javax.swing.JFrame implements Constantes{
     
     private cliente _cliente;
     private GameWindow _GameWPlayer;
@@ -123,8 +124,10 @@ public class Lobby extends javax.swing.JFrame {
     private void ConnBttActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ConnBttActionPerformed
         // TODO add your handling code here:
         _cliente=new cliente(Integer.parseInt(PortField.getText()), IpField.getText());
+        _cliente.SendMsg(ESPECTADOR);
         _GameWPlayer= new GameWindow(_cliente);
         _GameWPlayer.createScreen();
+        //_GameWPlayer.setVisible(true);
     }//GEN-LAST:event_ConnBttActionPerformed
     
     /**
