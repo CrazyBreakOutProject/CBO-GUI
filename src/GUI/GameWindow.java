@@ -5,6 +5,10 @@
  */
 package GUI;
 
+import Logic.Constantes;
+import Logic.Ball;
+import Logic.Player;
+import Logic.Brick;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
@@ -15,8 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
-import prueba_cliente_sender.cliente;
+import Logic.cliente;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,10 +33,10 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
     private List<Ball> _balls;
     private List<Brick> _bricks;
     private List<Player> _plyrs;
-    private boolean _flagForTypeOfConnection;
+    private boolean _flagForTypeOfConnection, _flagForContinueGame;
     private JLabel _ScoreLabel;
     private JLabel _ScoreTitleLabel;
-    private int _Score;
+    private int _Score, _playerStatesToScreen;
     
     /**
      * constructor que establece los datos iniciales y recibe el primer
@@ -42,7 +45,7 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
      * contra el servidor.
      */
     public GameWindow(cliente pCliente){
-        //_flagForTypeOfConnection=flag
+        _flagForContinueGame=true;
         _balls= new ArrayList<>();
         _bricks= new ArrayList<>();
         _plyrs= new ArrayList<>();
@@ -54,7 +57,6 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
         _balls.add(new Ball(SCREEN_X/DOS-BALL_SIZE,POS_Y_PLY-(BALL_SIZE+CINCO)));
         _clienteEspectador= pCliente;
         //_clienteEspectador.SendMsg(ESPECTADOR);
-        (new Thread(_clienteEspectador)).start();
         setFirstData(_clienteEspectador.getMsgFromServer());
         //createScreen();
     }
@@ -112,9 +114,9 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
         if(_flagForTypeOfConnection){
             _clienteJugador= new cliente(_clienteEspectador.getPort(), 
                     _clienteEspectador.getIP());
-            _clienteJugador.SendMsg(GAMER);
+            _clienteJugador.alertServerPlayer();
         }
-        while(true){
+        while(_flagForContinueGame){
             setNewJsonMsg(_clienteEspectador.getMsgFromServer());
         }
     }
@@ -127,6 +129,7 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
     public void setFirstData( String pMsg){
         try {
             JSONObject obj = new JSONObject(pMsg);
+            //obtenemos los datos de todos los jugadores actualmente conectados.
             JSONObject ObjPlayers =obj.optJSONObject(PLAYERS);
             if(ObjPlayers!=null){
                 String tempJsonPlyrs;
@@ -138,8 +141,11 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
                             UNO,tempJsonPlyrs.length()));
                     _plyrs.add(new Player(i));
                     _plyrs.get(i).setPosi(pX, pY);
+                    this.add(_plyrs.get(i).getPLayerLabel());
                 }
+                _playerStatesToScreen=ObjPlayers.length();
             }
+            //obtenemos los datos nuevos del bloque que acabos de cambiar.
             JSONObject ObjBricks =obj.optJSONObject(BRICKS);
             if(ObjBricks!=null){
                 String tempJsonBricks;
@@ -156,6 +162,7 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
                     }
                 }
             }
+            //aqui vamos obteniendo la posicion actual de la pelota.
             JSONObject ObjBalls =obj.optJSONObject(BALL_POS);
             if(ObjBalls!=null){
                 String tempJsonBricks;
@@ -183,6 +190,17 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
     public void setNewJsonMsg(String pMsg){
         try {
             JSONObject obj = new JSONObject(pMsg);
+            //revisamos si ya tenemos que terminar el juego.
+            if(obj.optBoolean(TERMINATE)){
+                System.out.println("Juego terminado");
+                synchronized(this){
+                    _flagForContinueGame=false;
+                }
+                this.setVisible(false);
+                this.dispose();
+                return;
+            }
+            //obtenemos todos los datos de los jugadores actualmente conectados.
             JSONObject ObjPlayers =obj.optJSONObject(PLAYERS);
             if(ObjPlayers!=null){
                 String tempJsonPlyrs;
@@ -192,20 +210,33 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
                     int pX= Integer.parseInt(tempJsonPlyrs.substring(CERO,IndexComa));
                     int pY= Integer.parseInt(tempJsonPlyrs.substring(IndexComa+ 
                             UNO,tempJsonPlyrs.length()));
-                    _plyrs.add(new Player(i));
+                    //agregamos a la lista al nuevo jugador
+                    if(_plyrs.size()==i){
+                        _plyrs.add(new Player(i));
+                    }
+                    //establecemos sus datos.
                     _plyrs.get(i).setPosi(pX, pY);
                 }
+                //ciclo para agregar las nuevas paletas a la pantalla
+                for(int i = _playerStatesToScreen; i<ObjPlayers.length(); i++){
+                    this.add(_plyrs.get(i).getPLayerLabel());
+                }
+                _playerStatesToScreen=ObjPlayers.length();
             }
+            //obtenemos la informacion del bloque ya esta golpeado.
             JSONObject ObjBricks =obj.optJSONObject(BRICK_HIT);
             if(ObjBricks!=null){
                 int id= ObjBricks.getInt(ID);
-                int power=ObjBricks.getInt(BRICK_DEL);
-                if(power>(-UNO))
-                    _bricks.get(id).setChangeColor(power);
-                else{
-                    _bricks.get(id).destroyBrick();
+                if(id>-UNO){
+                    int power=ObjBricks.getInt(BRICK_DEL);
+                    if(power>(-UNO))
+                        _bricks.get(id).setChangeColor(power);
+                    else{
+                        _bricks.get(id).destroyBrick();
+                    }
                 }
             }
+            //obtenemos la nueva posicion de la pelota.
             JSONObject ObjBalls =obj.optJSONObject(BALL_POS);
             if(ObjBalls!=null){
                 String tempJsonBricks;
@@ -232,13 +263,18 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
      */
     @Override
     public void keyPressed(KeyEvent e) {
-        if(e.getKeyCode()== KeyEvent.VK_RIGHT && _flagForTypeOfConnection){
+        //si somos un jugador y apretamos la tecla derecha 
+        if((e.getKeyCode()== KeyEvent.VK_RIGHT || 
+                e.getKeyCode()== KeyEvent.VK_A) 
+                && _flagForTypeOfConnection){
             synchronized(this){
                 _clienteJugador.SendMsg(RIGHT);
             }
             System.out.println(RIGHT);
         }
-        else if(e.getKeyCode()== KeyEvent.VK_LEFT && _flagForTypeOfConnection){
+        else if((e.getKeyCode()== KeyEvent.VK_LEFT || 
+                e.getKeyCode()== KeyEvent.VK_D) 
+                && _flagForTypeOfConnection){
             synchronized(this){
                 _clienteJugador.SendMsg(LEFT);
             }
@@ -253,30 +289,4 @@ public class GameWindow extends JFrame implements KeyListener, Constantes, Runna
     @Override
     public void keyReleased(KeyEvent e) {
     }
-    
-    /*public static void main(String[] args) {
-        GameWindow nueva= new GameWindow(null);
-        String JsonTemplateExampleFirstMsg= "{\"players\":-1,\"bricks\":{\"b0\":"
-                + "\"0,1\",\"b1\":\"1,3\",\"b2\":\"2,2\",\"b3\":\"3,1\",\"b4\":"
-                + "\"4,1\",\"b5\":\"5,2\",\"b6\":\"6,1\",\"b7\":\"7,2\",\"b8\":"
-                + "\"8,2\",\"b9\":\"9,3\",\"b10\":\"10,2\",\"b11\":\"11,2\","
-                + "\"b12\":\"12,3\",\"b13\":\"13,2\",\"b14\":\"14,2\",\"b15\":"
-                + "\"15,1\",\"b16\":\"16,3\",\"b17\":\"17,2\",\"b18\":\"18,3\","
-                + "\"b19\":\"19,1\",\"b20\":\"20,3\",\"b21\":\"21,3\",\"b22\":"
-                + "\"22,2\",\"b23\":\"23,3\",\"b24\":\"24,2\",\"b25\":\"25,3\","
-                + "\"b26\":\"26,1\",\"b27\":\"27,1\",\"b28\":\"28,2\",\"b29\":"
-                + "\"29,1\",\"b30\":\"30,3\",\"b31\":\"31,2\",\"b32\":\"32,1\","
-                + "\"b33\":\"33,2\",\"b34\":\"34,2\",\"b35\":\"35,2\",\"b36\":"
-                + "\"36,1\",\"b37\":\"37,1\",\"b38\":\"38,2\",\"b39\":\"39,3\","
-                + "\"b40\":\"40,3\",\"b41\":\"41,3\",\"b42\":\"42,3\",\"b43\":"
-                + "\"43,1\",\"b44\":\"44,2\",\"b45\":\"45,2\",\"b46\":\"46,1\","
-                + "\"b47\":\"47,1\",\"b48\":\"48,3\",\"b49\":\"49,1\",\"b50\":"
-                + "\"50,1\",\"b51\":\"51,1\",\"b52\":\"52,3\",\"b53\":\"53,3\","
-                + "\"b54\":\"54,3\",\"b55\":\"55,3\",\"b56\":\"56,3\",\"b57\":"
-                + "\"57,2\",\"b58\":\"58,1\",\"b59\":\"59,2\",\"b60\":\"60,2\","
-                + "\"b61\":\"61,3\",\"b62\":\"62,1\",\"b63\":\"63,3\"},"
-                + "\"ballPos\":{\"pos0\":\"380,455\"},\"score\":0}";
-        nueva.setFirstData(JsonTemplateExampleFirstMsg);
-        nueva.createScreen();
-    }*/
 }
