@@ -5,10 +5,9 @@
  */
 package LobbyScreen;
 
-import GUI.Constantes;
+import Logic.Constantes;
 import GUI.GameWindow;
-import java.awt.Color;
-import prueba_cliente_sender.cliente;
+import Logic.cliente;
 
 /**
  *
@@ -23,7 +22,6 @@ public class Lobby extends javax.swing.JFrame implements Constantes{
      * Creates new form Lobby
      */
     public Lobby() {
-        this.getContentPane().setBackground(Color.RED);
         initComponents();
     }
 
@@ -44,13 +42,22 @@ public class Lobby extends javax.swing.JFrame implements Constantes{
         ConnBtt = new javax.swing.JButton();
         PlayerBtt = new javax.swing.JButton();
         ExptectorBtt1 = new javax.swing.JButton();
+        jPanel6 = new javax.swing.JPanel();
+        jPanel5 = new javax.swing.JPanel();
+        jPanel8 = new javax.swing.JPanel();
+        jPanel7 = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
+        jPanel1 = new javax.swing.JPanel();
+        jPanel9 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Crazy Break Out");
-        setBackground(new java.awt.Color(255, 0, 0));
+        setBackground(new java.awt.Color(254, 254, 254));
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setForeground(java.awt.Color.black);
-        setMinimumSize(new java.awt.Dimension(450, 364));
+        setMinimumSize(new java.awt.Dimension(450, 400));
         getContentPane().setLayout(null);
 
         jLabel1.setForeground(new java.awt.Color(254, 254, 254));
@@ -69,13 +76,13 @@ public class Lobby extends javax.swing.JFrame implements Constantes{
         jLabel2.setForeground(new java.awt.Color(254, 254, 254));
         jLabel2.setText("Puerto:");
         getContentPane().add(jLabel2);
-        jLabel2.setBounds(20, 120, 60, 15);
+        jLabel2.setBounds(20, 120, 60, 21);
 
         jLabel3.setBackground(new java.awt.Color(1, 1, 1));
         jLabel3.setForeground(new java.awt.Color(254, 254, 254));
         jLabel3.setText("IP:");
         getContentPane().add(jLabel3);
-        jLabel3.setBounds(20, 170, 18, 15);
+        jLabel3.setBounds(20, 170, 17, 21);
 
         ConnBtt.setText("Conectar");
         ConnBtt.addActionListener(new java.awt.event.ActionListener() {
@@ -84,7 +91,7 @@ public class Lobby extends javax.swing.JFrame implements Constantes{
             }
         });
         getContentPane().add(ConnBtt);
-        ConnBtt.setBounds(300, 150, 120, 25);
+        ConnBtt.setBounds(300, 150, 120, 33);
 
         PlayerBtt.setText("Jugador");
         PlayerBtt.addActionListener(new java.awt.event.ActionListener() {
@@ -104,6 +111,42 @@ public class Lobby extends javax.swing.JFrame implements Constantes{
         getContentPane().add(ExptectorBtt1);
         ExptectorBtt1.setBounds(70, 269, 130, 30);
 
+        jPanel6.setBackground(new java.awt.Color(255, 0, 16));
+        getContentPane().add(jPanel6);
+        jPanel6.setBounds(230, 100, 120, 100);
+
+        jPanel5.setBackground(new java.awt.Color(0, 97, 255));
+        getContentPane().add(jPanel5);
+        jPanel5.setBounds(120, 100, 120, 100);
+
+        jPanel8.setBackground(new java.awt.Color(72, 225, 34));
+        getContentPane().add(jPanel8);
+        jPanel8.setBounds(0, 100, 120, 100);
+
+        jPanel7.setBackground(new java.awt.Color(255, 76, 0));
+        getContentPane().add(jPanel7);
+        jPanel7.setBounds(350, 100, 120, 100);
+
+        jPanel4.setBackground(new java.awt.Color(0, 97, 255));
+        getContentPane().add(jPanel4);
+        jPanel4.setBounds(0, 0, 120, 100);
+
+        jPanel3.setBackground(new java.awt.Color(255, 76, 0));
+        getContentPane().add(jPanel3);
+        jPanel3.setBounds(230, 0, 120, 100);
+
+        jPanel2.setBackground(new java.awt.Color(255, 0, 16));
+        getContentPane().add(jPanel2);
+        jPanel2.setBounds(110, 0, 120, 100);
+
+        jPanel1.setBackground(new java.awt.Color(72, 225, 34));
+        getContentPane().add(jPanel1);
+        jPanel1.setBounds(350, 0, 120, 100);
+
+        jPanel9.setBackground(new java.awt.Color(3, 134, 251));
+        getContentPane().add(jPanel9);
+        jPanel9.setBounds(180, 310, 110, 10);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -115,19 +158,25 @@ public class Lobby extends javax.swing.JFrame implements Constantes{
     private void PlayerBttActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PlayerBttActionPerformed
         // TODO add your handling code here:
         _GameWPlayer.setFalgForPlayer(true);
+        _GameWPlayer.createScreen();
+        (new Thread(_GameWPlayer)).start();
         _GameWPlayer.setVisible(true);
-        (new Thread(_GameWPlayer)).run();
         this.setVisible(false);
         this.dispose();
     }//GEN-LAST:event_PlayerBttActionPerformed
 
     private void ConnBttActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ConnBttActionPerformed
         // TODO add your handling code here:
-        _cliente=new cliente(Integer.parseInt(PortField.getText()), IpField.getText());
-        _cliente.SendMsg(ESPECTADOR);
-        _GameWPlayer= new GameWindow(_cliente);
-        _GameWPlayer.createScreen();
-        //_GameWPlayer.setVisible(true);
+        if(!PortField.getText().equals("") && !IpField.getText().equals("")){
+            _cliente=new cliente(Integer.parseInt(PortField.getText()), IpField.getText());
+            _cliente.alertServerViewer();
+            (new Thread(_cliente)).start();
+            _GameWPlayer= new GameWindow(_cliente);
+            System.out.println("Conexion con exito, esperando para empezar...");
+            //_GameWPlayer.setVisible(true);
+        }
+        else
+            System.out.println("Error:faltan datos para la conexión");
     }//GEN-LAST:event_ConnBttActionPerformed
     
     /**
@@ -138,8 +187,9 @@ public class Lobby extends javax.swing.JFrame implements Constantes{
     private void ExptectorBtt1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExptectorBtt1ActionPerformed
         // TODO add your handling code here:
         _GameWPlayer.setFalgForPlayer(false);
+        _GameWPlayer.createScreen();
+        (new Thread(_GameWPlayer)).start();
         _GameWPlayer.setVisible(true);
-        (new Thread(_GameWPlayer)).run();
         this.setVisible(false);
         this.dispose();
     }//GEN-LAST:event_ExptectorBtt1ActionPerformed
@@ -188,5 +238,14 @@ public class Lobby extends javax.swing.JFrame implements Constantes{
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
     // End of variables declaration//GEN-END:variables
 }
