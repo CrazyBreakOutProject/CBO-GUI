@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package LobbyScreen;
+package Screens;
 
 import Logic.Constantes;
 import GUI.GameWindow;
@@ -76,13 +76,13 @@ public class Lobby extends javax.swing.JFrame implements Constantes{
         jLabel2.setForeground(new java.awt.Color(254, 254, 254));
         jLabel2.setText("Puerto:");
         getContentPane().add(jLabel2);
-        jLabel2.setBounds(20, 120, 60, 21);
+        jLabel2.setBounds(20, 120, 60, 17);
 
         jLabel3.setBackground(new java.awt.Color(1, 1, 1));
         jLabel3.setForeground(new java.awt.Color(254, 254, 254));
         jLabel3.setText("IP:");
         getContentPane().add(jLabel3);
-        jLabel3.setBounds(20, 170, 17, 21);
+        jLabel3.setBounds(20, 170, 16, 17);
 
         ConnBtt.setText("Conectar");
         ConnBtt.addActionListener(new java.awt.event.ActionListener() {
@@ -91,7 +91,7 @@ public class Lobby extends javax.swing.JFrame implements Constantes{
             }
         });
         getContentPane().add(ConnBtt);
-        ConnBtt.setBounds(300, 150, 120, 33);
+        ConnBtt.setBounds(300, 150, 120, 29);
 
         PlayerBtt.setText("Jugador");
         PlayerBtt.addActionListener(new java.awt.event.ActionListener() {
